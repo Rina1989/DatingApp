@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
-    [Authorize]
     public class MembersController : BaseApiController
     {
         private readonly AppDbContext _context;
