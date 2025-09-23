@@ -1,6 +1,9 @@
 <app-nav />
-<app-home/>
+<div [ngClass]="{'mt-24 container mx-auto':!(router.url==='/')}">
+    <router-outlet/>
+</div>
 
+<!-- <app-home/> -->
 <!-- <div class="card bg-base-100 w-1/2 mx-auto p-10 mt-10 shadow-xl">
     <h1 class="text-3xl text-red-500 font-bold underline">{{title}}</h1>
     <ul class="list">
