@@ -159,3 +159,4 @@ D:\Rina\DatingApp\api\obj\Debug\net9.0\API.pdb
 D:\Rina\DatingApp\api\obj\Debug\net9.0\API.genruntimeconfig.cache
 D:\Rina\DatingApp\api\obj\Debug\net9.0\ref\API.dll
 D:\Rina\DatingApp\api\bin\Debug\net9.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+D:\Rina\DatingApp\api\bin\Debug\net9.0\Context\UserSeedData.json
