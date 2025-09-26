@@ -27,7 +27,7 @@ namespace API.Controllers
             }
             return Ok(model);
         }
-        [HttpGet("{id}/photo")]
+        [HttpGet("{id}/photos")]
         public async Task<IActionResult> GetMemberPhotos(string id)
         {
             var model = await _memberRepository.GetPhotosForMemberAsync(id);
