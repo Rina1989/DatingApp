@@ -1,10 +1,14 @@
+using System.Security.Claims;
+using API.DTOs;
 using API.Entities;
 using API.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
+    [Authorize]
     public class MembersController : BaseApiController
     {
         private readonly IMemberRepository _memberRepository;
@@ -44,18 +48,26 @@ namespace API.Controllers
         //     await _context.SaveChangesAsync();
         //     return Ok(query);
         // }
-        // [HttpPut]
-        // public async Task<IActionResult> UpdateUser(AppUser user)
-        // {
-        //     var data = await _memberRepository.Update(user);
-        //     if (data == null)
-        //     {
-        //         return BadRequest("User not found");
-        //     }
-        //     _context.Entry(user).State = EntityState.Modified;
-        //     await _context.SaveChangesAsync();
-        //     return Ok(user);
-        // }
+        [HttpPut]
+        public async Task<IActionResult> UpdateMember(MemberUpdateDTO memberUpdate)
+        {
+            var memberId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (memberId == null) return BadRequest("Oops - No Id found in token");
+
+            var member = await _memberRepository.GetMemberForUpdate(memberId);
+            if (member == null) return BadRequest("Could not get member");
+            member.DisplayName = memberUpdate.DisplayName ?? member.DisplayName;
+            member.Description = memberUpdate.Description ?? member.Description;
+            member.City = memberUpdate.City ?? member.City;
+            member.Country = memberUpdate.Country ?? member.Country;
+
+            _memberRepository.Update(member);
+            if (await _memberRepository.SaveAllAsync())
+            {
+                return NoContent();
+            }
+            return BadRequest("Failed to update member.");
+        }
         // [HttpDelete]
         // public async Task<bool> DeleteUser(string id)
         // {

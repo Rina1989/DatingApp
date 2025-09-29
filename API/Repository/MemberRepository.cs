@@ -1,9 +1,7 @@
-using System;
 using API.Context;
 using API.Entities;
 using API.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Mono.TextTemplating;
 
 namespace API.Repository;
 
@@ -17,13 +15,18 @@ public class MemberRepository : IMemberRepository
     public async Task<IReadOnlyList<Member>> GetMemberAsync()
     {
         return await _context.Members
-// .Include(x=>x.photos)
+        // .Include(x=>x.photos)
         .ToListAsync();
     }
 
     public async Task<Member?> GetMemberByIdAsync(string id)
     {
         return await _context.Members.FindAsync(id);
+    }
+
+    public async Task<Member?> GetMemberForUpdate(string id)
+    {
+        return await _context.Members.Include(x => x.user).FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<IReadOnlyList<Photo>> GetPhotosForMemberAsync(string memberId)
