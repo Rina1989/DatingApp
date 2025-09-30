@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using API.DTOs;
 using API.Entities;
+using API.Extension;
 using API.Interfaces;
+using API.Repository;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,9 +14,11 @@ namespace API.Controllers
     public class MembersController : BaseApiController
     {
         private readonly IMemberRepository _memberRepository;
-        public MembersController(IMemberRepository memberRepository)
+        private readonly IPhotoService _photoService;
+        public MembersController(IMemberRepository memberRepository, IPhotoService photoService)
         {
             _memberRepository = memberRepository;
+            _photoService = photoService;
         }
         [HttpGet]
         public async Task<IActionResult> GetMembers()
@@ -68,8 +72,32 @@ namespace API.Controllers
             }
             return BadRequest("Failed to update member.");
         }
+
+        [HttpPost("add-photo")]
+        public async Task<ActionResult<Photo>> AddPhoto([FromForm] IFormFile file)
+        {
+            var member = await _memberRepository.GetMemberForUpdate(User.GetMemberId());
+            if (member == null) return BadRequest("Cannot update member");
+            var result = await _photoService.UploadPhotoAsync(file);
+            if (result.Error != null)
+                return BadRequest(result.Error.Message);
+            var photo = new Photo
+            {
+                Url = result.SecureUrl.AbsoluteUri,
+                PublicId = result.PublicId,
+                MemberId = User.GetMemberId()
+            };
+            if (member.ImageUrl == null)
+            {
+                member.ImageUrl = photo.Url;
+                member.user.ImageUrl = photo.Url;
+            }
+            member.photos.Add(photo);
+            if (await _memberRepository.SaveAllAsync()) return photo;
+            return BadRequest("Problem adding photo");
+        }
         // [HttpDelete]
-        // public async Task<bool> DeleteUser(string id)
+        // public async Task<bttool> DeleteUser(string id)
         // {
         //     var model = await _context.Users.FindAsync(id);
         //     if (model == null)

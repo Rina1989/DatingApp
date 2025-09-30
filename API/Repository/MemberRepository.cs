@@ -26,7 +26,10 @@ public class MemberRepository : IMemberRepository
 
     public async Task<Member?> GetMemberForUpdate(string id)
     {
-        return await _context.Members.Include(x => x.user).FirstOrDefaultAsync(x => x.Id == id);
+        return await _context.Members
+        .Include(x => x.user)
+        .Include(x=>x.photos)
+        .FirstOrDefaultAsync(x => x.Id == id);
     }
 
     public async Task<IReadOnlyList<Photo>> GetPhotosForMemberAsync(string memberId)

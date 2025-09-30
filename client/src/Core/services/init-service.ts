@@ -14,5 +14,4 @@ export class InitService {
     this.accountService.currentUser.set(user);
     return of(null);
   }
-
 }
