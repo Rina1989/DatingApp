@@ -96,17 +96,55 @@ namespace API.Controllers
             if (await _memberRepository.SaveAllAsync()) return photo;
             return BadRequest("Problem adding photo");
         }
-        // [HttpDelete]
-        // public async Task<bttool> DeleteUser(string id)
-        // {
-        //     var model = await _context.Users.FindAsync(id);
-        //     if (model == null)
-        //     {
-        //         return false;
-        //     }
-        //     _context.Users.Remove(model);
-        //     int result = await _context.SaveChangesAsync();
-        //     return result > 0;
-        // }
+
+        [HttpPut("set-main-photo/{photoId}")]
+        public async Task<ActionResult> SetMainPhoto(int photoId)
+        {
+            var member = await _memberRepository.GetMemberForUpdate(User.GetMemberId());
+            if (member == null) return BadRequest("Cannot get member from tokn");
+            var photo = member.photos.SingleOrDefault(x => x.Id == photoId);
+            if (member.ImageUrl == photo?.Url || photo == null)
+            {
+                return BadRequest("Cannot set this an main image");
+            }
+            member.ImageUrl = photo.Url;
+            member.user.ImageUrl = photo.Url;
+            if (await _memberRepository.SaveAllAsync())
+                return NoContent();
+            return BadRequest("Problem setting main photo");
+        }
+
+        [HttpDelete("delete-photo/{photoId}")]
+        public async Task<ActionResult> DeletePhoto(int photoId)
+        {
+            var member = await _memberRepository.GetMemberForUpdate(User.GetMemberId());
+            if (member == null) return BadRequest("Cannot get member from tokn");
+            var photo = member.photos.SingleOrDefault(x => x.Id == photoId);
+            if (photo == null || photo.Url == member.ImageUrl)
+            {
+                return BadRequest("This photo cannot be deleted");
+            }
+            if (photo.PublicId != null)
+            {
+                var result = await _photoService.DeletePhotoAsync(photo.PublicId);
+                if (result.Error != null) return BadRequest(result.Error.Message);
+            }
+            member.photos.Remove(photo);
+            if (await _memberRepository.SaveAllAsync()) return Ok();
+            return BadRequest("Problem deleting the photo");
+        }
     }
+    // [HttpDelete]
+    // public async Task<bttool> DeleteUser(string id)
+    // {
+    //     var model = await _context.Users.FindAsync(id);
+    //     if (model == null)
+    //     {
+    //         return false;
+    //     }
+    //     _context.Users.Remove(model);
+    //     int result = await _context.SaveChangesAsync();
+    //     return result > 0;
+    // }
 }
+
