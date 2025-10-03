@@ -46,6 +46,7 @@ export class MemberService {
   deletePhoto(photoId: number) {
     return this.http.delete(this.baseUrl + 'members/delete-photo/' + photoId);
   }
+
   // private getHttpOptions() {
   //   return {
   //     headers: new HttpHeaders({
