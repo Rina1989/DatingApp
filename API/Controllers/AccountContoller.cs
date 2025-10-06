@@ -34,7 +34,15 @@ public class AccountContoller : BaseApiController
             DisplayName = model.displayName,
             Email = model.email,
             PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(model.password)),
-            PasswordSalt = hmac.Key
+            PasswordSalt = hmac.Key,
+            member=new Member
+            {
+                DisplayName = model.displayName,
+                Gender = model.Gender,
+                City = model.City,
+                Country = model.Country,
+                DateOfBirth=model.DateOfBirth
+            }
         };
         _conext.Users.Add(user);
         await _conext.SaveChangesAsync();
