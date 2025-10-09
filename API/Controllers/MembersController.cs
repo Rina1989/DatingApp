@@ -2,6 +2,7 @@ using System.Security.Claims;
 using API.DTOs;
 using API.Entities;
 using API.Extension;
+using API.Helpers;
 using API.Interfaces;
 using API.Repository;
 using Microsoft.AspNetCore.Authorization;
@@ -21,9 +22,10 @@ namespace API.Controllers
             _photoService = photoService;
         }
         [HttpGet]
-        public async Task<IActionResult> GetMembers()
+        public async Task<IActionResult> GetMembers([FromQuery]MemberParams memberParams)
         {
-            return Ok(await _memberRepository.GetMemberAsync());
+            memberParams.CurrentMemberId = User.GetMemberId();
+            return Ok(await _memberRepository.GetMemberAsync(memberParams));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetMemberById(string id)
